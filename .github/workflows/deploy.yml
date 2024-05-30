@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+env:
+  ENVIRONMENT: dev
+  ECR_IMAGE_URI: 529570760328.dkr.ecr.us-west-2.amazonaws.com/slackbot
 
 jobs:
   deploy:
@@ -30,7 +33,7 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       run: |
-        REPOSITORY_URI=${{ secrets.ECR_REPOSITORY_URI }}
+        REPOSITORY_URI=${{ env.ECR_IMAGE_URI }}
         IMAGE_TAG=latest
 
         docker build -t $REPOSITORY_URI:$IMAGE_TAG .
