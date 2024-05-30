@@ -46,6 +46,8 @@ jobs:
     - name: Deploy to AWS Lambda
       id: deploy-lambda
       run: |
+        REPOSITORY_URI=${{ env.ECR_IMAGE_URI }}
+        IMAGE_TAG=latest
         aws lambda update-function-code --function-name slackbot --image-uri $REPOSITORY_URI:$IMAGE_TAG
       env:
         AWS_REGION: ${{ secrets.AWS_REGION }}
