@@ -33,15 +33,8 @@ if "AWS_EXECUTION_ENV" not in os.environ:
     this_file_folder = os.path.dirname(os.path.realpath(__file__))
     load_dotenv(Path(this_file_folder) / ".env")
 
-# required env vars
-NOTION_DATABASE_ID = os.environ.get("NOTION_DATABASE_ID")
-if NOTION_DATABASE_ID == "":
-    raise ValueError("Please provide a valid Notion database ID.")
-
 
 # secrets
-OPENAI_API_KEY = read_env_or_load("OPENAI_API_KEY", "openai_api_key")
 SLACK_APP_TOKEN = read_env_or_load("SLACK_APP_TOKEN", "slack_app_token")
 SLACK_BOT_TOKEN = read_env_or_load("SLACK_BOT_TOKEN", "slack_bot_token")
 SLACK_SIGNING_SECRET = read_env_or_load("SLACK_SIGNING_SECRET", "slack_signing_secret")
-NOTION_TOKEN = read_env_or_load("NOTION_TOKEN", "notion_token")
