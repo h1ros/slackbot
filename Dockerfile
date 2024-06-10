@@ -1,12 +1,18 @@
 FROM public.ecr.aws/lambda/python:3.10
 
-# Copy function code
-COPY app.py ${LAMBDA_TASK_ROOT}
+# set work directory
+WORKDIR ${LAMBDA_TASK_ROOT}
 
-# Install dependencies
-COPY requirements.txt ./
+# install dependencies
 RUN pip install pip --upgrade
-RUN pip install -r requirements.txt
+
+COPY requirements.txt ./
+RUN pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+
+# copy project
+COPY . ${LAMBDA_TASK_ROOT}
+
+EXPOSE 8080
 
 # Command to run the lambda handler
 CMD ["app.handler"]
