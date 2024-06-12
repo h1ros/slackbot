@@ -55,6 +55,9 @@ async def process_message(event, say):
 async def process_mention(event, say):
     print("process_mention started")
     await asyncio.sleep(5)  # Simulate a long-running process
+    print("asyncio.sleep(5) ended")
+    print(f"send message: Hello <@{event['user']}>! How can I help you?"")
+
     await send_message(say, f"Hello <@{event['user']}>! How can I help you?")
 
 # Function to send message with retry logic
