@@ -52,8 +52,9 @@ async def process_message(event, say):
     await asyncio.sleep(5)  # Simulate a long-running process
     await send_message(say, f"Received your message: {event['text']}")
 
-async def process_mention(event, say):
+async def process_mention(event, say, ack):
     print("process_mention started")
+    await ack()
     await asyncio.sleep(5)  # Simulate a long-running process
     print("asyncio.sleep(5) ended")
     print(f"send message: Hello <@{event['user']}>! How can I help you?")
