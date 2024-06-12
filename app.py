@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
 from slack_sdk.web.async_client import AsyncWebClient
+from slack_sdk.errors import SlackApiError
 from mangum import Mangum
 import asyncio
 from config import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
@@ -24,9 +25,9 @@ slack_handler = AsyncSlackRequestHandler(app)
 
 @api.post("/slack/messages")
 async def slack_events(request: Request):
-    logger.info('call /slack/messages')
+    print('call /slack/messages')
     body = await request.json()
-    logger.info(f'body: {body}')
+    print(f'body: {body}')
     if "challenge" in body:
         return {"challenge": body["challenge"]}
     return await slack_handler.handle(request)
@@ -35,26 +36,41 @@ async def slack_events(request: Request):
 @app.event("message")
 async def handle_message_events(event, say, ack, logger):
     await ack()  # Acknowledge the event immediately
-    logger.info(f"Message event received: {event}")
+    print(f"Message event received: {event}")
     asyncio.create_task(process_message(event, say))
 
 # Define lazy listener for handling mentions
 @app.event("app_mention")
 async def handle_mention_events(event, say, ack, logger):
     await ack()  # Acknowledge the event immediately
-    logger.info(f"Mention event received: {event}")
+    print(f"Mention event received: {event}")
     asyncio.create_task(process_mention(event, say))
 
-# Asynchronous task processing
+# Asynchronous task processing with retry mechanism
 async def process_message(event, say):
-    logger.info("process_message started")
+    print("process_message started")
     await asyncio.sleep(5)  # Simulate a long-running process
-    await say(f"Received your message: {event['text']}")
+    await send_message(say, f"Received your message: {event['text']}")
 
 async def process_mention(event, say):
-    logger.info("process_mention started")
+    print("process_mention started")
     await asyncio.sleep(5)  # Simulate a long-running process
-    await say(f"Hello <@{event['user']}>! How can I help you?")
+    await send_message(say, f"Hello <@{event['user']}>! How can I help you?")
+
+# Function to send message with retry logic
+async def send_message(say, text, retries=3):
+    for attempt in range(retries):
+        try:
+            await say(text)
+            print(f"Message sent: {text}")
+            return
+        except SlackApiError as e:
+            logger.error(f"Error sending message: {e.response['error']}")
+            if attempt < retries - 1:
+                print("Retrying...")
+                await asyncio.sleep(2 ** attempt)  # Exponential backoff
+            else:
+                logger.error("Max retries reached. Giving up.")
 
 # Define a test endpoint
 @api.get("/test")
@@ -63,11 +79,18 @@ async def test(request: Request):
         channel='#general',  # Replace with your channel ID or name
         text="Test message from bot"
     )
-    logger.info(f"Test message response: {response}")
+    print(f"Test message response: {response}")
     return {"status": "Test message sent"}
 
+# Slash command handler
+@app.command("/start-process")
+async def start_process_command(ack, body, say):
+    await ack()
+    print(f"Command received: {body}")
+    await send_message(say, f"Starting process as requested by <@{body['user_id']}>")
+
 # Lambda handler
-logger.info('Starting up')
+print('Starting up')
 handler = Mangum(api)
 
 if __name__ == "__main__":
