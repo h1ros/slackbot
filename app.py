@@ -72,7 +72,24 @@ async def test(request: Request):
     await test_slack_message()
     return {"status": "Test message sent"}
 
+def respond_to_slack_within_3_seconds(body, ack):
+    text = body.get("text")
+    if text is None or len(text) == 0:
+        ack(f":x: Usage: /start-process (description here)")
+    else:
+        ack(f"Accepted! (task: {body['text']})")
 
+import time
+def run_long_process(respond, body):
+    time.sleep(5)  # longer than 3 seconds
+    respond(f"Completed! (task: {body['text']})")
+
+app.command("/start-process")(
+    # ack() is still called within 3 seconds
+    ack=respond_to_slack_within_3_seconds,
+    # Lazy function is responsible for processing the event
+    lazy=[run_long_process]
+)
 # Lambda handler
 print('Starting up')
 handler = Mangum(api)
