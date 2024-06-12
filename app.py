@@ -23,6 +23,7 @@ async def slack_events(request: Request):
     # logger.info('call /slack/messages')
     print('call /slack/messages')
     body = await request.json()
+    print(f'body: {body}')
     if "challenge" in body:
         return {"challenge": body["challenge"]}
     return await slack_handler.handle(request)
@@ -31,22 +32,29 @@ async def slack_events(request: Request):
 @app.event("message")
 async def handle_message_events(event, say, logger):
     logger.info(f"Message event received: {event}")
+    print(f"Message event received: {event}")
     asyncio.create_task(process_message(event, say))
 
 # Define lazy listener for handling mentions
 @app.event("app_mention")
 async def handle_mention_events(event, say, logger):
     logger.info(f"Mention event received: {event}")
+    print(f"Mention event received:{event}")
+
     asyncio.create_task(process_mention(event, say))
 
 # Asynchronous task processing
 async def process_message(event, say):
+    print(f"process_message started")
+
     # Simulate a long-running process
     await asyncio.sleep(5)
     await say(f"Received your message: {event['text']}")
 
 async def process_mention(event, say):
     # Simulate a long-running process
+    print(f"process_mention started")
+
     await asyncio.sleep(5)
     await say(f"Hello <@{event['user']}>! How can I help you?")
 
