@@ -58,6 +58,21 @@ async def process_mention(event, say):
     await asyncio.sleep(5)
     await say(f"Hello <@{event['user']}>! How can I help you?")
 
+async def test_slack_message():
+    from slack_sdk.web.async_client import AsyncWebClient
+    client = AsyncWebClient(token=SLACK_BOT_TOKEN)
+    response = await client.chat_postMessage(
+        channel='#general', 
+        text="Test message from bot"
+    )
+    logger.info(f"Test message response: {response}")
+
+@api.get("/test")
+async def test(request: Request):
+    await test_slack_message()
+    return {"status": "Test message sent"}
+
+
 # Lambda handler
 print('Starting up')
 handler = Mangum(api)
