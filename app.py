@@ -37,14 +37,14 @@ async def slack_events(request: Request):
 async def handle_message_events(event, say, ack, logger):
     await ack()  # Acknowledge the event immediately
     print(f"Message event received: {event}")
-    asyncio.create_task(process_message(event, say))
+    asyncio.create_task(process_message(event, sa, ack))
 
 # Define lazy listener for handling mentions
 @app.event("app_mention")
 async def handle_mention_events(event, say, ack, logger):
     await ack()  # Acknowledge the event immediately
     print(f"Mention event received: {event}")
-    asyncio.create_task(process_mention(event, say))
+    asyncio.create_task(process_mention(event, say, ack))
 
 # Asynchronous task processing with retry mechanism
 async def process_message(event, say):
