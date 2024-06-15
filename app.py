@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize your Slack app with increased timeout
-app = AsyncApp(token=SLACK_BOT_TOKEN, signing_secret=SLACK_SIGNING_SECRET)
+app = AsyncApp(process_before_response=True, token=SLACK_BOT_TOKEN, signing_secret=SLACK_SIGNING_SECRET)
 client = AsyncWebClient(token=SLACK_BOT_TOKEN, timeout=30)  # Increase timeout to 30 seconds
 
 # FastAPI app
