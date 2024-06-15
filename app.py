@@ -58,9 +58,9 @@ async def process_mention(event, say):
     print("asyncio.sleep(5) ended")
 
     # Retrieve the SlackBot instance from the FastAPI app state
-    print(f"await app.on_message(event, say)")
-    await app.on_message(event, say)
-    print(f"app.on_message(event, say) ended")
+    print(f"await say")
+    await say(f"Hello <@{event['user']}>! How can I help you?")
+    print(f"say ended")
 
     print(f"send message: Hello <@{event['user']}>! How can I help you?")
     await send_message(say, f"Hello <@{event['user']}>! How can I help you?")
