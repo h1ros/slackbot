@@ -37,14 +37,14 @@ async def slack_events(request: Request):
 async def handle_message_events(event, say, ack, logger):
     await ack()  # Acknowledge the event immediately
     print(f"Message event received: {event}")
-    asyncio.create_task(process_message(event, say, ack))
+    asyncio.ensure_future(process_message(event, say))
 
 # Define lazy listener for handling mentions
 @app.event("app_mention")
 async def handle_mention_events(event, say, ack, logger):
     await ack()  # Acknowledge the event immediately
     print(f"Mention event received: {event}")
-    asyncio.create_task(process_mention(event, say, ack))
+    asyncio.ensure_future(process_mention(event, say))
 
 # Asynchronous task processing with retry mechanism
 async def process_message(event, say):
@@ -52,16 +52,11 @@ async def process_message(event, say):
     await asyncio.sleep(5)  # Simulate a long-running process
     await send_message(say, f"Received your message: {event['text']}")
 
-async def process_mention(event, say, ack):
+async def process_mention(event, say):
     print("process_mention started")
-
-    await ack()
-    print("ack() called")
-
     await asyncio.sleep(5)  # Simulate a long-running process
     print("asyncio.sleep(5) ended")
     print(f"send message: Hello <@{event['user']}>! How can I help you?")
-
     await send_message(say, f"Hello <@{event['user']}>! How can I help you?")
 
 # Function to send message with retry logic
