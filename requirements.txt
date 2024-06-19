@@ -1,3 +1,4 @@
 fastapi==0.101.0
 mangum==0.17.0
 slack-bolt==1.18.1
+aiohttp==3.9.5
