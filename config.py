@@ -1,5 +1,5 @@
 import os
-from utils import secret_from_parameter_store
+from utils import secret_from_parameter_store, get_secret
 from pathlib import Path
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "prd")

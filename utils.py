@@ -1,29 +1,35 @@
 import boto3
 import logging
-from langchain.docstore.document import Document
+from botocore.exceptions import ClientError
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def extract_relevant_content(raw_documents):
-    """
-    Extracts relevant content from raw Notion documents.
 
-    Args:
-        raw_documents (list): A list of raw Notion documents.
 
-    Returns:
-        list: A list of refined documents containing relevant content.
-    """
-    refined_documents = []
-    for doc in raw_documents:
-        metadata = doc.metadata
-        answer = metadata.get('answer', '')
-        question = metadata.get('question', '')
-        page = Document(page_content=f"Long answer: {doc.page_content}\n Short answer: {answer}\n Question: {question}", metadata={})
-        refined_documents.append(page)
-    return refined_documents
+def get_secret():
 
+    secret_name = "slackbot/prd"
+    region_name = "us-west-2"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    secret = get_secret_value_response['SecretString']
+    print(f'secret: {secret}')
 
 def secret_from_parameter_store(parameter_name, env):
     """
@@ -38,6 +44,6 @@ def secret_from_parameter_store(parameter_name, env):
     """
     ssm = boto3.client("ssm")
     parameter = ssm.get_parameter(
-        Name=f"/chambers/{env}/{parameter_name}", WithDecryption=True
+        Name=f"/slackbot/{env}/{parameter_name}", WithDecryption=True
     )
     return parameter["Parameter"]["Value"]
