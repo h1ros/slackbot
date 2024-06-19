@@ -36,4 +36,6 @@ if "AWS_EXECUTION_ENV" not in os.environ:
 
 # secrets
 SLACK_BOT_TOKEN = read_env_or_load("SLACK_BOT_TOKEN", "slack_bot_token")
+print(f'SLACK_BOT_TOKEN[:5]: {SLACK_BOT_TOKEN[:5]}')
 SLACK_SIGNING_SECRET = read_env_or_load("SLACK_SIGNING_SECRET", "slack_signing_secret")
+print(f'SLACK_SIGNING_SECRET[:5]: {SLACK_SIGNING_SECRET[:5]}')
